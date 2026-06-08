@@ -1,0 +1,418 @@
+:root {
+  /* ライト(既定)。色は全てここで定義し、ダークはまとめて上書きする */
+  color-scheme: light;
+  --bg: #f4f6fb;
+  --glow: #e7ecff;
+  --card: #ffffff;
+  --ink: #1f2430;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --brand: #4f46e5;
+  --brand-ink: #ffffff;
+  --brand-soft: #eef2ff;
+  --danger: #dc2626;
+  --ok: #047857;
+  --input-bg: #ffffff;
+  --invalid-bg: #fef2f2;
+  --req-bg: #fef2f2;
+  --opt-bg: #f3f4f6;
+  --radius: 16px;
+  --shadow: 0 10px 30px rgba(31, 36, 48, 0.08);
+}
+
+/*
+ * ダークのトークン一式。
+ *  - data-theme 属性なし(=システム追従)のときは @media で適用
+ *  - data-theme="dark"(ピン留め)のときは常に適用
+ *  - data-theme="light"(ピン留め)のときはシステムがダークでも適用しない
+ * JS が動かなくても @media 側でシステム設定に追従する。
+ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0f1117;
+    --glow: #1a2040;
+    --card: #161a23;
+    --ink: #e7e9ee;
+    --muted: #9aa3b2;
+    --line: #2a3140;
+    --brand: #818cf8;
+    --brand-ink: #0f1117;
+    --brand-soft: #1e2440;
+    --danger: #f87171;
+    --ok: #34d399;
+    --input-bg: #0f1320;
+    --invalid-bg: #2a1416;
+    --req-bg: #3a1d1d;
+    --opt-bg: #232936;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0f1117;
+  --glow: #1a2040;
+  --card: #161a23;
+  --ink: #e7e9ee;
+  --muted: #9aa3b2;
+  --line: #2a3140;
+  --brand: #818cf8;
+  --brand-ink: #0f1117;
+  --brand-soft: #1e2440;
+  --danger: #f87171;
+  --ok: #34d399;
+  --input-bg: #0f1320;
+  --invalid-bg: #2a1416;
+  --req-bg: #3a1d1d;
+  --opt-bg: #232936;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 32px 16px;
+  font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(1200px 500px at 50% -10%, var(--glow) 0%, transparent 60%),
+    var(--bg);
+  line-height: 1.7;
+}
+
+.card {
+  width: 100%;
+  max-width: 560px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 32px 28px;
+}
+
+.card__head { margin-bottom: 24px; }
+
+.badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--brand);
+  background: var(--brand-soft);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+h1 {
+  font-size: 24px;
+  margin: 12px 0 8px;
+  letter-spacing: 0.01em;
+}
+
+.lead {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.field { margin-bottom: 20px; }
+
+label {
+  display: block;
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 8px;
+  transition: color .2s ease, translate .2s ease;
+}
+/* 入力中の項目だけラベルをブランド色にして少し寄せる */
+.field:focus-within label {
+  color: var(--brand);
+  translate: 3px 0;
+}
+
+.req, .opt {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+.req { color: var(--danger); background: var(--req-bg); }
+.opt { color: var(--muted); background: var(--opt-bg); }
+
+input, textarea {
+  width: 100%;
+  font: inherit;
+  color: var(--ink);
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--input-bg);
+  /* translate はフォーカス時のふわっとした浮きに使う(transform とは別プロパティ) */
+  transition:
+    border-color .15s,
+    box-shadow .25s ease,
+    background-color .15s,
+    translate .3s cubic-bezier(.34, 1.56, .64, 1);
+}
+textarea { resize: vertical; }
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 4px var(--brand-soft);
+  /* フォーカスで軽く持ち上げる */
+  translate: 0 -2px;
+}
+
+/* エラー表示は「操作後(:user-invalid)」または JS の .invalid 時だけ */
+input:user-invalid, textarea:user-invalid,
+input.invalid, textarea.invalid {
+  border-color: var(--danger);
+  background-color: var(--invalid-bg);
+}
+
+.hint {
+  margin: 6px 2px 0;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: right;
+}
+/* 入力欄の上に置く形式ヒント */
+.hint--top {
+  margin: 0 2px 8px;
+  text-align: left;
+}
+
+.error {
+  display: none;
+  margin: 6px 2px 0;
+  font-size: 12px;
+  color: var(--danger);
+}
+input:user-invalid ~ .error,
+textarea:user-invalid ~ .error,
+input.invalid ~ .error,
+textarea.invalid ~ .error {
+  display: block;
+}
+
+.btn {
+  position: relative;
+  width: 100%;
+  margin-top: 4px;
+  padding: 14px 16px;
+  font: inherit;
+  font-weight: 700;
+  color: var(--brand-ink);
+  background: var(--brand);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, .25);
+  transition:
+    filter .15s,
+    box-shadow .2s ease,
+    transform .2s cubic-bezier(.34, 1.56, .64, 1);
+}
+.btn:hover {
+  filter: brightness(1.05);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(79, 70, 229, .35);
+}
+.btn:active {
+  transform: translateY(1px) scale(.98);
+  transition-duration: .08s;
+}
+.btn:disabled {
+  cursor: not-allowed;
+  filter: saturate(.6) brightness(.95);
+  transform: none;
+  box-shadow: none;
+}
+
+.btn__spinner {
+  display: none;
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 18px; height: 18px;
+  margin: -9px 0 0 -9px;
+  border: 2px solid rgba(255,255,255,.5);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+.btn.loading .btn__label { visibility: hidden; }
+.btn.loading .btn__spinner { display: block; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.status {
+  margin: 16px 0 0;
+  font-size: 14px;
+  text-align: center;
+  min-height: 1.2em;
+}
+.status.ok { color: var(--ok); font-weight: 600; }
+.status.ng { color: var(--danger); font-weight: 600; }
+
+.foot {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+.foot p { margin: 0; }
+
+.sent .card__head { text-align: center; }
+
+/* ===== テーマ切り替えボタン ===== */
+.theme-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--ink);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: filter .15s, transform .05s;
+}
+.theme-toggle:hover { filter: brightness(1.05); }
+.theme-toggle:active { transform: translateY(1px); }
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+/* ライト時は月(ダークへ)、ダーク時は太陽(ライトへ)を表示 */
+.theme-toggle .icon-dark { display: none; }
+:root[data-theme="dark"] .theme-toggle .icon-light { display: none; }
+:root[data-theme="dark"] .theme-toggle .icon-dark { display: inline; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .icon-light { display: none; }
+  :root:not([data-theme="light"]) .theme-toggle .icon-dark { display: inline; }
+}
+
+/* ==========================================================================
+ *  遊びのあるアニメーション
+ *  - エントランスや浮き沈みは transform ではなく translate / scale を使い、
+ *    hover/active の transform とプロパティが競合しないようにする。
+ *  - 動きはすべて末尾の prefers-reduced-motion で無効化する。
+ * ======================================================================== */
+
+/* カード本体:ふわっと迫り上がって登場 */
+.card {
+  animation: card-in .6s cubic-bezier(.21, 1.02, .73, 1) both;
+}
+@keyframes card-in {
+  from { opacity: 0; translate: 0 18px; scale: .98; }
+  to   { opacity: 1; translate: 0 0;    scale: 1; }
+}
+
+/* バッジ:ぽんっと弾けて登場、ホバーでぷるぷる */
+.badge {
+  transform-origin: center;
+  animation: badge-pop .5s .15s cubic-bezier(.34, 1.56, .64, 1) both;
+}
+.badge:hover { animation: badge-wiggle .45s ease; }
+@keyframes badge-pop {
+  from { opacity: 0; scale: .5; }
+  to   { opacity: 1; scale: 1; }
+}
+@keyframes badge-wiggle {
+  0%, 100% { rotate: 0deg; }
+  25%      { rotate: -7deg; }
+  60%      { rotate: 5deg; }
+  80%      { rotate: -3deg; }
+}
+
+/* 各入力フィールドと送信ボタン:少しずつ遅らせて順番に登場 */
+.field, .btn {
+  animation: rise-in .55s cubic-bezier(.21, 1.02, .73, 1) both;
+}
+.field:nth-of-type(1) { animation-delay: .14s; }
+.field:nth-of-type(2) { animation-delay: .22s; }
+.field:nth-of-type(3) { animation-delay: .30s; }
+.btn                  { animation-delay: .38s; }
+@keyframes rise-in {
+  from { opacity: 0; translate: 0 14px; }
+  to   { opacity: 1; translate: 0 0; }
+}
+
+/* エラー時はぷるっと横に揺れて気づかせる(送信時に付く .invalid のみ) */
+input.invalid, textarea.invalid {
+  animation: shake .4s cubic-bezier(.36, .07, .19, .97);
+}
+@keyframes shake {
+  10%, 90%        { translate: -1px 0; }
+  20%, 80%        { translate:  2px 0; }
+  30%, 50%, 70%   { translate: -5px 0; }
+  40%, 60%        { translate:  5px 0; }
+}
+
+/* 文字数カウンター:入力のたびにぴょこっと跳ねる(JS が .bump を付与) */
+#counter {
+  display: inline-block;
+  transition: color .2s ease;
+}
+#counter.bump { animation: counter-bump .3s cubic-bezier(.34, 1.56, .64, 1); }
+@keyframes counter-bump {
+  0%   { scale: 1; }
+  40%  { scale: 1.5; color: var(--brand); }
+  100% { scale: 1; }
+}
+
+/* 送信完了画面:チェックがぽんっと跳ねて、文言が後追いで浮かぶ */
+.thanks__icon {
+  display: inline-block;
+  font-size: 40px;
+  line-height: 1;
+  animation: check-pop .6s .05s cubic-bezier(.34, 1.7, .5, 1) both;
+}
+.thanks__title {
+  margin: 14px 0 6px;
+  font-size: 20px;
+  animation: rise-in .5s .25s ease-out both;
+}
+.thanks__text {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  animation: rise-in .5s .38s ease-out both;
+}
+@keyframes check-pop {
+  0%   { opacity: 0; scale: 0;   rotate: -25deg; }
+  60%  { opacity: 1; scale: 1.25; rotate: 8deg; }
+  100% { opacity: 1; scale: 1;   rotate: 0deg; }
+}
+
+/* 動きを控えたいユーザーには、にぎやかさを全部オフにする */
+@media (prefers-reduced-motion: reduce) {
+  .card, .badge, .field, .btn,
+  input.invalid, textarea.invalid,
+  #counter.bump,
+  .thanks__icon, .thanks__title, .thanks__text {
+    animation: none !important;
+  }
+  .badge:hover { animation: none; }
+  input:focus, textarea:focus { translate: none; }
+  .field:focus-within label { translate: none; }
+  .btn:hover { transform: none; }
+}

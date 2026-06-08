@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>お便りフォーム | Podcast</title>
+  <meta name="description" content="番組への感想・お便りを募集しています。" />
+
+  <!-- 既定は system(light dark)。ライト/ダーク両対応を宣言してネイティブUIの白フラッシュを防ぐ -->
+  <meta name="color-scheme" content="light dark" />
+  <!-- FOUC対策:描画前に保存済みテーマを復元する(defer/module を付けないこと) -->
+  <script>
+    try {
+      const saved = localStorage.getItem("color-scheme");
+      if (saved === "light" || saved === "dark") {
+        document.documentElement.dataset.theme = saved;
+        document.querySelector('meta[name="color-scheme"]').content = saved;
+      }
+    } catch (e) { /* file:// 等で localStorage が使えなくても無視 */ }
+  </script>
+
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <button type="button" id="theme-toggle" class="theme-toggle"
+          aria-label="表示テーマを切り替える" title="テーマを切り替える">
+    <span class="icon-light" aria-hidden="true">🌙</span>
+    <span class="icon-dark" aria-hidden="true">☀️</span>
+  </button>
+
+  <main class="card">
+    <header class="card__head">
+      <span class="badge">📻 PODCAST</span>
+      <h1>お便り・感想フォーム</h1>
+      <p class="lead">番組へのご感想やメッセージをお寄せください。いただいたお便りは番組内で紹介させていただくことがあります。</p>
+    </header>
+
+    <form id="survey-form" novalidate>
+      <div class="field">
+        <label for="name">お名前 / ニックネーム <span class="req">必須</span></label>
+        <input type="text" id="name" name="name" maxlength="50" autocomplete="nickname"
+               placeholder="例:ラジオネーム ○○" required
+               aria-errormessage="name-error" />
+        <p class="error" id="name-error">
+          <span aria-hidden="true">⚠</span> お名前を入力してください。
+        </p>
+      </div>
+
+      <div class="field">
+        <label for="email">メールアドレス <span class="opt">任意</span></label>
+        <!-- 形式ヒントは入力欄の上に置く(オートコンプリートのポップアップに隠れないように) -->
+        <p class="hint hint--top" id="email-hint">返信が必要な場合のみ。形式:you@example.com</p>
+        <input type="email" id="email" name="email" maxlength="120" autocomplete="email"
+               placeholder="例:you@example.com"
+               aria-describedby="email-hint" aria-errormessage="email-error" />
+        <p class="error" id="email-error">
+          <span aria-hidden="true">⚠</span> メールアドレスの形式が正しくありません。
+        </p>
+      </div>
+
+      <div class="field">
+        <label for="message">感想・お便り <span class="req">必須</span></label>
+        <textarea id="message" name="message" rows="6" maxlength="2000"
+                  placeholder="番組の感想、取り上げてほしいテーマ、質問など自由にどうぞ。" required
+                  aria-describedby="message-hint" aria-errormessage="message-error"></textarea>
+        <p class="hint" id="message-hint"><span id="counter">0</span> / 2000</p>
+        <p class="error" id="message-error">
+          <span aria-hidden="true">⚠</span> 感想・お便りを入力してください。
+        </p>
+      </div>
+
+      <button type="submit" id="submit-btn" class="btn">
+        <span class="btn__label">送信する</span>
+        <span class="btn__spinner" aria-hidden="true"></span>
+      </button>
+
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+    </form>
+  </main>
+
+  <footer class="foot">
+    <p>送信いただいた内容は番組運営の目的にのみ使用します。</p>
+  </footer>
+
+  <script src="./script.js"></script>
+</body>
+</html>

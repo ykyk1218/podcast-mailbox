@@ -1,0 +1,11 @@
+# clasp のローカル設定(スクリプトID/スプレッドシートIDを含むため公開しない)
+gas/.clasp.json
+
+# clasp pull で生成される重複ファイル(正は Code.gs)
+gas/Code.js
+
+# OS / エディタ
+.DS_Store
+
+# 依存(将来 npm を入れた場合用)
+node_modules/

@@ -179,7 +179,15 @@ function showThanks() {
   counter.textContent = "0";
   form.innerHTML = `
     <div class="thanks" style="text-align:center; padding:8px 0 4px;">
-      <div class="thanks__icon" aria-hidden="true">✅</div>
+      <div class="thanks__icon">
+        <svg class="thanks__check" viewBox="0 0 52 52" role="img"
+             aria-label="送信完了" xmlns="http://www.w3.org/2000/svg">
+          <circle class="thanks__check-disc"  cx="26" cy="26" r="24" />
+          <circle class="thanks__check-pulse" cx="26" cy="26" r="24" />
+          <circle class="thanks__check-ring"  cx="26" cy="26" r="24" />
+          <path   class="thanks__check-mark" d="M15 27 l7.5 7.5 L38 18" />
+        </svg>
+      </div>
       <h2 class="thanks__title">送信ありがとうございました!</h2>
       <p class="thanks__text">
         いただいたお便りは番組内で紹介させていただくことがあります。

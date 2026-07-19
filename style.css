@@ -379,12 +379,59 @@ input.invalid, textarea.invalid {
   100% { scale: 1; }
 }
 
-/* 送信完了画面:チェックがぽんっと跳ねて、文言が後追いで浮かぶ */
+/* 送信完了画面:自作 SVG チェックが「輪 → チェック」の順に描かれる。
+ *  - disc  … 淡い下地の円(親 SVG のポップに乗って一緒に現れる)
+ *  - pulse … 最後に外へ広がって消える波紋
+ *  - ring  … 緑の輪郭。stroke-dashoffset を 0 に向けて一筆書き
+ *  - mark  … チェック本体。輪の後追いで描かれる
+ */
 .thanks__icon {
-  display: inline-block;
-  font-size: 40px;
-  line-height: 1;
-  animation: check-pop .6s .05s cubic-bezier(.34, 1.7, .5, 1) both;
+  display: inline-flex;
+  line-height: 0; /* SVG 下の余白を消す */
+}
+.thanks__check {
+  width: 92px;
+  height: 92px;
+  /* 全体をぽんっとポップイン(ドローと別要素なので競合しない) */
+  animation: thanks-pop .5s .05s cubic-bezier(.34, 1.7, .5, 1) both;
+}
+/* 下地の淡い円 */
+.thanks__check-disc {
+  fill: color-mix(in srgb, var(--ok) 12%, transparent);
+  stroke: none;
+}
+/* 描かれる緑の輪郭。上(12時)から時計回りに描くため -90deg 回しておく */
+.thanks__check-ring {
+  fill: none;
+  stroke: var(--ok);
+  stroke-width: 3;
+  stroke-dasharray: 151;      /* 2πr ≒ 150.8(r=24) */
+  stroke-dashoffset: 151;
+  transform-box: fill-box;
+  transform-origin: center;
+  rotate: -90deg;
+  animation: check-draw .55s .2s ease-out forwards;
+}
+/* チェック本体。輪が描き終わるころから引き始める */
+.thanks__check-mark {
+  fill: none;
+  stroke: var(--ok);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 36;       /* パス長 ≒ 33 より少し大きめに */
+  stroke-dashoffset: 36;
+  animation: check-draw .3s .65s cubic-bezier(.65, 0, .45, 1) forwards;
+}
+/* 完成の瞬間に外へ広がって消える波紋 */
+.thanks__check-pulse {
+  fill: none;
+  stroke: var(--ok);
+  stroke-width: 2;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: check-pulse .6s .95s ease-out both;
 }
 .thanks__title {
   margin: 14px 0 6px;
@@ -397,10 +444,18 @@ input.invalid, textarea.invalid {
   font-size: 14px;
   animation: rise-in .5s .38s ease-out both;
 }
-@keyframes check-pop {
-  0%   { opacity: 0; scale: 0;   rotate: -25deg; }
-  60%  { opacity: 1; scale: 1.25; rotate: 8deg; }
-  100% { opacity: 1; scale: 1;   rotate: 0deg; }
+@keyframes thanks-pop {
+  0%   { opacity: 0; scale: .3; }
+  60%  { opacity: 1; scale: 1.08; }
+  100% { opacity: 1; scale: 1; }
+}
+/* dashoffset を 0 にして「線を引く」*/
+@keyframes check-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes check-pulse {
+  0%   { opacity: .5; scale: .85; }
+  100% { opacity: 0;  scale: 1.55; }
 }
 
 /* 動きを控えたいユーザーには、にぎやかさを全部オフにする */
@@ -408,9 +463,13 @@ input.invalid, textarea.invalid {
   .card, .badge, .field, .btn,
   input.invalid, textarea.invalid,
   #counter.bump,
-  .thanks__icon, .thanks__title, .thanks__text {
+  .thanks__check, .thanks__check-ring, .thanks__check-mark,
+  .thanks__check-pulse, .thanks__title, .thanks__text {
     animation: none !important;
   }
+  /* アニメを止めても「描き終えた完成形」を必ず表示する */
+  .thanks__check-ring, .thanks__check-mark { stroke-dashoffset: 0; }
+  .thanks__check-pulse { display: none; }
   .badge:hover { animation: none; }
   input:focus, textarea:focus { translate: none; }
   .field:focus-within label { translate: none; }
